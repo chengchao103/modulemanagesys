@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinamobile.iot.dao.AnalysisStatisticsDao">
+    <!-- type映射的类名，id后面设置resultMap时用到，表示结果对应哪个类型的映射关系 -->
+    <!-- 注：如果表中列名与类的属性名一致，且类按javaBean规范构造，映射关系可省略，具体原因可参考java的反射原理 -->
+    <select id="getCustomerStat" resultType="com.chinamobile.iot.model.business.statistics.CustomerStatEntity">
+        select customer_count,customer_add_count from ts_sys_statistics_analysis
+        WHERE industry=-1 and module_type=-1 and carrier=-1 and comm_sys=-1
+        and separate=-1 and module_count=-1 and module_add_count=-1 and customer_name =-1
+        and customer_value=-1 and province=-1 and  percentage=-1;
+    </select>
+
+    <select id="getModuleStat" resultType="com.chinamobile.iot.model.business.statistics.ModuleStatEntity">
+        select module_count,module_add_count from ts_sys_statistics_analysis
+        WHERE industry=-1 and module_type=-1 and carrier=-1 and comm_sys=-1
+        and separate=-1 and customer_value=-1 and customer_count=-1
+        and customer_add_count=-1 and province=-1 and percentage=-1
+        <choose>
+            <when test="customer_name!=null">
+                AND customer_name=#{customer_name}
+            </when>
+            <when test="customer_name==null">
+                AND customer_name=-1
+            </when>
+        </choose>
+        ;
+    </select>
+
+    <select id="getSepCardModuleStat"
+            resultType="com.chinamobile.iot.model.business.statistics.SepCardModuleStatEntity">
+        select module_count,module_add_count from ts_sys_statistics_analysis
+        WHERE industry=-1 and module_type=-1 and carrier=-1 and comm_sys=-1
+        and separate=1 and customer_value=-1 and customer_count=-1
+        and customer_add_count=-1 and province=-1 and percentage=-1
+        <choose>
+            <when test="customer_name!=null">
+                AND customer_name=#{customer_name}
+            </when>
+            <when test="customer_name==null">
+                AND customer_name=-1
+            </when>
+        </choose>
+        ;
+    </select>
+
+    <select id="getSepCardCustomerStat"
+            resultType="com.chinamobile.iot.model.business.statistics.SepCardCustomerStatEntity">
+        select customer_count,customer_add_count from ts_sys_statistics_analysis
+        WHERE industry=-1 and module_type=-1 and carrier=-1 and comm_sys=-1
+        and separate=1 and module_count=-1 and module_add_count=-1 and customer_name =-1
+        and customer_value=-1 and province=-1 and percentage=-1;
+    </select>
+
+    <select id="getIndustryAnal" resultType="java.util.Map">
+        select industry,module_count,customer_count,percentage from ts_sys_statistics_analysis
+        WHERE industry!=-1 and province=-1;
+    </select>
+
+    <select id="getCommSysAnal" resultType="java.util.Map">
+        select comm_sys,module_count,module_add_count,percentage from ts_sys_statistics_analysis
+        WHERE comm_sys!=-1 and province=-1
+        <choose>
+            <when test="customer_name!=null">
+                AND customer_name=#{customer_name}
+            </when>
+            <when test="customer_name==null">
+                AND customer_name=-1
+            </when>
+        </choose>
+        ;
+    </select>
+
+    <select id="getCarrierAnal" resultType="java.util.Map">
+        select carrier,module_count,module_add_count,percentage from ts_sys_statistics_analysis
+        WHERE carrier!=-1 and province=-1
+        <choose>
+            <when test="customer_name!=null">
+                AND customer_name=#{customer_name}
+            </when>
+            <when test="customer_name==null">
+                AND customer_name=-1
+            </when>
+        </choose>
+        ;
+    </select>
+    <select id="getModuleTypeLoc" resultType="java.util.Map">
+        select module_type AS identifier,province,city,module_count from ts_sys_statistics_analysis
+        WHERE module_add_count=-1 and customer_count=-1 and customer_add_count=-1 and percentage = -1 AND industry=-1
+        and comm_sys=-1 and customer_value=-1
+        <choose>
+            <when test="customer_name!=null">
+                AND customer_name=#{customer_name}
+            </when>
+            <when test="customer_name==null">
+                AND customer_name=-1
+            </when>
+        </choose>
+
+        <choose>
+            <when test="province!=null">
+                AND province=#{province}
+                AND city!=-1
+            </when>
+            <when test="province==null">
+                AND city=-1
+            </when>
+        </choose>
+
+
+        ORDER BY module_type
+        ;
+    </select>
+
+    <select id="getIndustryLoc" resultType="java.util.Map">
+        select industry AS identifier,province,city,module_count from ts_sys_statistics_analysis
+        WHERE module_add_count=-1 and customer_count=-1 and customer_add_count=-1 and percentage = -1 AND module_type=-1
+        and comm_sys=-1 and customer_value=-1
+        <choose>
+            <when test="province!=null">
+                AND province=#{province}
+                AND city!=-1
+            </when>
+            <when test="province==null">
+                AND city=-1
+            </when>
+        </choose>
+
+        ORDER BY industry
+        ;
+    </select>
+
+    <select id="getCommSysLoc" resultType="java.util.Map">
+        select comm_sys AS identifier,province,city,module_count from ts_sys_statistics_analysis
+        WHERE module_add_count=-1 and customer_count=-1 and customer_add_count=-1 and percentage = -1 and module_type=-1
+        and industry=-1 and customer_value=-1
+        <choose>
+            <when test="customer_name!=null">
+                AND customer_name=#{customer_name}
+            </when>
+            <when test="customer_name==null">
+                AND customer_name=-1
+            </when>
+        </choose>
+        <choose>
+            <when test="province!=null">
+                AND province=#{province}
+                AND city!=-1
+            </when>
+            <when test="province==null">
+                AND city=-1
+            </when>
+        </choose>
+        ORDER BY comm_sys
+        ;
+    </select>
+
+
+    <select id="getCustomerValueLoc" resultType="java.util.Map">
+        select customer_value AS identifier,province,city,module_count from ts_sys_statistics_analysis
+        WHERE module_add_count=-1 and customer_count=-1 and customer_add_count=-1 and percentage = -1 and module_type=-1
+        and industry=-1 and comm_sys=-1
+        <choose>
+            <when test="province!=null">
+                AND province=#{province}
+                AND city!=-1
+            </when>
+            <when test="province==null">
+                AND city=-1
+            </when>
+        </choose>
+        ORDER BY customer_value
+        ;
+    </select>
+
+</mapper>

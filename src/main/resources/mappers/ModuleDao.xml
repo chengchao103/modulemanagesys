@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinamobile.iot.dao.ModuleDao">
+    <!-- type映射的类名，id后面设置resultMap时用到，表示结果对应哪个类型的映射关系 -->
+    <!-- 注：如果表中列名与类的属性名一致，且类按javaBean规范构造，映射关系可省略，具体原因可参考java的反射原理 -->
+
+    <select id="getModuleBySn" parameterType="java.lang.String" resultType="com.chinamobile.iot.model.business.Module">
+        select sn, imei, iccid, comm_sys,module_type,firmware_ver,app_ver,communityid,customer_name,signal_strength from tm_main_modules where sn=#{sn};
+    </select>
+    <select id="getAllModulesByGroup" parameterType="java.util.Map"
+            resultType="java.util.Map">
+        select b.customer_name, b.industry,b.province,a.sn,a.imei,a.comm_sys,a.app_ver,a.iccid,a.carrier,a.combo_name,a.combo_remain,a.separate from
+        tm_main_customer_module_list a, tm_main_customers b WHERE
+        a.customer_name=b.customer_name
+        <if test="customer_name != null">
+            and a.customer_name=#{customer_name}
+        </if>
+        <if test="industry != null">
+            and industry=#{industry}
+        </if>
+        <if test="comm_sys != null">
+            and comm_sys=#{comm_sys}
+        </if>
+        <if test="combo_name != combo_name">
+            and combo_name=#{combo_name}
+        </if>
+        <if test="separate != null">
+            and separate=#{separate}
+        </if>
+        and app_ver=#{app_ver}
+        <if test="pageStart != null and pageSize != null">
+            limit #{pageStart},#{pageSize}
+        </if>
+
+    </select>
+    <select id="getModulesCountByGroup"    resultType="java.lang.Integer">
+        select COUNT(*) from
+        tm_main_customer_module_list a, tm_main_customers b WHERE
+        a.customer_name=b.customer_name
+        <if test="customer_name != null">
+            and b.customer_name=#{customer_name}
+        </if>
+        <if test="industry != null">
+            and industry=#{industry}
+        </if>
+        <if test="comm_sys != null">
+            and comm_sys=#{comm_sys}
+        </if>
+        <if test="combo_name != combo_name">
+            and combo_name=#{combo_name}
+        </if>
+        <if test="status != null">
+            and separate=#{separate}
+        </if>
+        and app_ver=#{app_ver}
+    </select>
+
+    <select id="getFields" parameterType="java.lang.String" resultType="java.util.Map">
+        select id ,dict_value as text from ts_sys_dict where group_name=#{type};
+    </select>
+</mapper>

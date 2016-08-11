@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinamobile.iot.dao.LoginDao">
+    <!-- type映射的类名，id后面设置resultMap时用到，表示结果对应哪个类型的映射关系 -->
+    <!-- 注：如果表中列名与类的属性名一致，且类按javaBean规范构造，映射关系可省略，具体原因可参考java的反射原理 -->
+
+    <select id="getPasswordByName" parameterType="java.lang.String" resultType="java.lang.String">
+        select password from ts_sys_users where user_name=#{user_name} or mobile=#{user_name};
+    </select>
+    <select id="getMobileByName" parameterType="java.lang.String" resultType="java.lang.String">
+        select mobile from ts_sys_users where user_name=#{user_name} or mobile=#{user_name};
+    </select>
+    <update id="saveSmsInfo" parameterType="java.util.Map">
+        update ts_sys_users
+        <set>
+            <if test="sms_code != null">
+                sms_code=#{sms_code},
+            </if>
+            <if test="sms_create_time != null">
+                sms_create_time=#{sms_create_time},
+            </if>
+        </set>
+        where
+        user_name=#{user_name}
+
+    </update>
+
+    <select id="getSmsInfo" parameterType="java.lang.String" resultType="com.chinamobile.iot.model.business.SmsInfo">
+        select user_name, mobile, sms_code,sms_create_time from ts_sys_users where user_name=#{user_name} or mobile=#{user_name};
+    </select>
+</mapper>

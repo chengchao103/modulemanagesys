@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinamobile.iot.dao.CustomerDao">
+    <!-- type映射的类名，id后面设置resultMap时用到，表示结果对应哪个类型的映射关系 -->
+    <!-- 注：如果表中列名与类的属性名一致，且类按javaBean规范构造，映射关系可省略，具体原因可参考java的反射原理 -->
+
+    <select id="getCustomerList" resultType="java.util.Map">
+        select a.customer_name ,a.industry ,a.province ,b.type_num, b.module_num, b.comm_sys, b.carrier, b.separate_num
+        from tm_main_customers a RIGHT JOIN tm_main_customer_list b ON a.customer_name=b.customer_name WHERE
+        1=1
+        <if test="customer_name != null and  customer_name!=''">
+            and a.customer_name=#{customer_name}
+        </if>
+        <if test="industry != null">
+            and a.industry=#{industry}
+        </if>
+        <if test="pageStart != null and pageSize != null">
+            limit #{pageStart},#{pageSize}
+        </if>
+        ;
+    </select>
+
+
+    <select id="getCustomerListSize" resultType="java.lang.Integer">
+        select COUNT(*)
+        from tm_main_customers a RIGHT JOIN tm_main_customer_list b ON a.customer_name=b.customer_name WHERE
+        1=1
+        <if test="customer_name != null and  customer_name!=''">
+            and a.customer_name=#{customer_name}
+        </if>
+        <if test="industry != null">
+            and a.industry=#{industry}
+        </if>
+        ;
+    </select>
+
+    <select id="getCustomerDetail" parameterType="java.lang.String"
+            resultType="com.chinamobile.iot.model.business.CustomerListEntity">
+        select a.customer_name, a.industry, a.province, b.module_num, b.separate_num,b.sim_num from tm_main_customers a,tm_main_customer_list b WHERE a.customer_name=#{customer_name} and a.customer_name=b.customer_name;
+    </select>
+
+
+    <select id="getCustomerDeviceList" resultType="java.util.Map">
+        select module_type,imei,sn,comm_sys, app_ver, iccid, carrier, combo_name,combo_remain, case separate when '0'
+        then '机卡未分离' when '1' then '机卡分离' end as separate
+        from
+        tm_main_customer_module_list WHERE
+        1=1
+        <if test="customer_name != null">
+            and customer_name=#{customer_name}
+        </if>
+        <if test="imei != null">
+            and imei=#{imei}
+        </if>
+        <if test="comm_sys != null">
+            and comm_sys=#{comm_sys}
+        </if>
+        <if test="combo_name != null">
+            and combo_name=#{combo_name}
+        </if>
+        <if test="separate != null">
+            and separate=#{separate}
+        </if>
+        <if test="app_ver != null">
+            and app_ver=#{app_ver}
+        </if>
+        <if test="pageStart != null and pageSize != null">
+            limit #{pageStart},#{pageSize}
+        </if>
+
+    </select>
+
+    <select id="getCustomerDeviceListSize" resultType="java.lang.Integer">
+        select COUNT(*) from
+        tm_main_customer_module_list WHERE
+        1=1
+        <if test="customer_name != null">
+            and customer_name=#{customer_name}
+        </if>
+        <if test="imei != null">
+            and imei=#{imei}
+        </if>
+        <if test="comm_sys != null">
+            and comm_sys=#{comm_sys}
+        </if>
+        <if test="combo_name != null">
+            and combo_name=#{combo_name}
+        </if>
+        <if test="separate != null">
+            and separate=#{separate}
+        </if>
+        <if test="app_ver != null">
+            and app_ver=#{app_ver}
+        </if>
+    </select>
+
+</mapper>

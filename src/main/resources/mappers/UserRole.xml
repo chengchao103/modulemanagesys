@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinamobile.iot.dao.RoleDao">
+    <!-- type映射的类名，id后面设置resultMap时用到，表示结果对应哪个类型的映射关系 -->
+    <!-- 注：如果表中列名与类的属性名一致，且类按javaBean规范构造，映射关系可省略，具体原因可参考java的反射原理 -->
+
+    <insert id="addUser" parameterType="com.chinamobile.iot.model.business.User">
+        INSERT INTO ts_sys_users (   user_name ,password,mobile,  create_time)
+        VALUES (#{user_name},#{password},#{mobile},now())
+    </insert>
+
+    <insert id="addRole" parameterType="com.chinamobile.iot.model.business.Role">
+        INSERT INTO ts_sys_role (role_code,role_name,create_user,create_datetime,update_user,update_datetime)
+        VALUES
+            (#{role_code},#{role_name},#{create_user},now(),null,null)
+    </insert>
+
+
+    <insert id="addUserRole" parameterType="com.chinamobile.iot.model.business.UserRole">
+        INSERT INTO tr_sys_user_role (  user_id,role_id)
+        VALUES
+        ( #{user_id},#{role_id})
+    </insert>
+    <insert id="addRoleSource" parameterType="com.chinamobile.iot.model.business.RoleSource">
+        INSERT INTO tr_sys_role_resource (id, role_id ,resource_id )
+        VALUES
+        (#{id},#{role_id},#{resource_id })
+    </insert>
+
+
+    <update id="updateUser" parameterType="com.chinamobile.iot.model.business.User">
+        update ts_sys_users set mobile=#{mobile} where user_id=#{user_id}
+    </update>
+    <update id="updateRole" parameterType="com.chinamobile.iot.model.business.Role">
+        update ts_sys_role set role_name=#{role_name},update_datetime=now() where id=#{id}
+    </update>
+    <update id="updatePassword" parameterType="com.chinamobile.iot.model.business.Password">
+        update ts_sys_users a set password=#{newPwd} where 1=1
+        <if test="user_name != null and user_name != ''">
+            and a.user_name=#{user_name}
+        </if>
+        <if test="user_id != null and user_id != ''">
+            and a.user_id=#{user_id}
+        </if>
+    </update>
+
+
+    <select id="getRole" parameterType="com.chinamobile.iot.model.business.Role" resultType="com.chinamobile.iot.model.business.Role">
+        select id,role_code,role_name,create_user,create_datetime,update_user,update_datetime from ts_sys_role where id=#{id};
+    </select>
+    <select id="getRoleSource" parameterType="com.chinamobile.iot.model.business.RoleSource" resultType="com.chinamobile.iot.model.business.RoleSource">
+          select id, role_id ,resource_id from tr_sys_role_resource where role_id=#{role_id};
+    </select>
+    <select id="getUser" parameterType="com.chinamobile.iot.model.business.User" resultType="com.chinamobile.iot.model.business.User">
+        select a.user_id, user_name ,password,mobile,b.role_id,a.create_time from ts_sys_users a left JOIN tr_sys_user_role b on a.user_id=b.user_id where 1=1
+        <if test="user_name != null and user_name != ''">
+        and a.user_name like concat(concat('%',#{user_name}),'%')
+        </if>
+        order by a.create_time desc
+
+    </select>
+    <select id="getUserAll" parameterType="com.chinamobile.iot.model.business.User" resultType="com.chinamobile.iot.model.business.User">
+        select a.user_id, user_name ,password,mobile,b.role_id,a.create_time from ts_sys_users a left JOIN tr_sys_user_role b on a.user_id=b.user_id where 1=1
+       <if test="user_name != null and user_name != ''">
+            and a.user_name like concat(concat('%',#{user_name}),'%')
+        </if>
+        <if test="role_id != null and role_id != ''">
+            and b.role_id=#{role_id}
+        </if>
+        order by a.create_time desc
+         <if test="pageStart != null and pageSize != null">
+            limit #{pageStart},#{pageSize}
+        </if>
+
+
+
+    </select>
+    <select id="getuserAllCount" parameterType="com.chinamobile.iot.model.business.User" resultType="Integer">
+        select count(1) from ts_sys_users a left JOIN tr_sys_user_role b on a.user_id=b.user_id where 1=1
+       <if test="user_name != null and user_name != ''">
+             and a.user_name like concat(concat('%',#{user_name}),'%')
+         </if>
+         <if test="role_id != null and role_id != ''">
+             and b.role_id=#{role_id}
+         </if>
+
+
+    </select>
+    <select id="getUserByName" parameterType="com.chinamobile.iot.model.business.User" resultType="com.chinamobile.iot.model.business.User">
+        select user_id, user_name ,password,mobile,create_time from ts_sys_users where user_name=#{user_name} ;
+    </select>
+    <select id="getSingleUserByName" parameterType="java.lang.String" resultType="com.chinamobile.iot.model.business.SingleUser">
+        select a.user_name ,a.mobile,b.role_id from ts_sys_users a,tr_sys_user_role b where a.user_name=#{user_name} and a.user_id=b.user_id;
+    </select>
+    <select id="getRoleByName" parameterType="com.chinamobile.iot.model.business.Role" resultType="com.chinamobile.iot.model.business.Role">
+        select id,role_code,role_name,create_user,create_datetime,update_user,update_datetime from ts_sys_role where role_name=#{role_name};
+    </select>
+
+
+
+    <delete id="delUser" parameterType="com.chinamobile.iot.model.business.User">
+        delete from ts_sys_users where user_id = #{user_id};
+    </delete>
+    <delete id="delUserRoleByu" parameterType="com.chinamobile.iot.model.business.UserRole">
+        delete from tr_sys_user_role where user_id = #{user_id};
+    </delete>
+    <delete id="delUserRoleByr" parameterType="com.chinamobile.iot.model.business.UserRole">
+        delete from tr_sys_user_role where role_id = #{role_id};
+    </delete>
+    <delete id="delRole" parameterType="com.chinamobile.iot.model.business.Role">
+        delete from ts_sys_role where id = #{id};
+    </delete>
+    <delete id="delRoleSource" parameterType="com.chinamobile.iot.model.business.RoleSource">
+        delete from tr_sys_role_resource where role_id = #{role_id};
+    </delete>
+
+</mapper>

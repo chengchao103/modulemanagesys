@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.chinamobile.iot.dao.ImportDao">
+    <!-- type映射的类名，id后面设置resultMap时用到，表示结果对应哪个类型的映射关系 -->
+    <!-- 注：如果表中列名与类的属性名一致，且类按javaBean规范构造，映射关系可省略，具体原因可参考java的反射原理 -->
+
+    <insert id="moduleImport" parameterType="java.util.List">
+        INSERT INTO ti_base_imported
+        (sn,customer_name,industry,province,imei,module_type,comm_sys,app_ver,iccid,combo_name,prom_online_time,import_time)
+        VALUES
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.sn},#{item.customer_name},#{item.industry},#{item.province},#{item.imei},#{item.module_type},#{item.comm_sys},#{item.app_ver},#{item.iccid},#{item.combo_name},#{item.prom_online_time},#{item.import_time})
+        </foreach>
+    </insert>
+</mapper>
